@@ -1,6 +1,8 @@
 const sha256 = require("sha256");
 const currentNodeUrl = process.argv[3];
 //access to third argument of node script in package.json
+const uuid = require("uuid").v1;
+
 
 function Blockchain() {
   this.chain = [];
@@ -45,10 +47,16 @@ Blockchain.prototype.createNewTransaction = function (
     amount,
     senderAddress,
     recipientAddress,
+    transactionId: uuid().split("-").join(""),
   };
 
-  this.pendingTransactions.push(newTransaction);
+  return newTransaction;
+};
 
+Blockchain.prototype.addTransactionToPendingTransactions = function (
+  transactionObj
+) {
+  this.pendingTransactions.push(transactionObj);
   return this.getLastBlock()["index"] + 1;
 };
 
