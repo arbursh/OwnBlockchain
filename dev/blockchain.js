@@ -3,7 +3,6 @@ const currentNodeUrl = process.argv[3];
 //access to third argument of node script in package.json
 const uuid = require("uuid").v1;
 
-
 function Blockchain() {
   this.chain = [];
   this.pendingTransactions = [];
@@ -85,6 +84,44 @@ Blockchain.prototype.proofOfWork = function (
   }
 
   return nonce;
+};
+
+Blockchain.prototype.chainIsValid = function (blockchain) {
+  let validChain = true;
+
+  for (let i = 1; i < blockchain.length; i++) {
+    const currentBlock = blockchain[i];
+    const prevBlock = blockchain[i - 1];
+    const blockHash = this.hashBlock(
+      prevBlock["hash"],
+      {
+        transactions: bitcoin.pendingTransactions,
+        index: lastBlock["index"] + 1,
+      },
+      currentBlock["nonce"]
+    );
+
+    if (blockHash.substring(0, 4) !== "0000") validChain = false;
+
+    if (currentBlock["previousBlockHash"] !== prevBlock["hash"])
+      validChain = false;
+  }
+
+  const genesisBlock = blockchain[0];
+  const correctNonce = genesisBlock["nonce"] === 100;
+  const correctPreviousBlockHash = genesisBlock["previousBlockhash"] === "0";
+  const correctHash = genesisBlock["hash"] === "0";
+  const correctTransactions = genesisBlock["transactions"].length === 0;
+
+  if (
+    !correctNonce ||
+    !correctPreviousBlockHash ||
+    !correctHash ||
+    !correctTransactions
+  )
+    validChain = false;
+
+  return validChain;
 };
 
 module.exports = Blockchain;
